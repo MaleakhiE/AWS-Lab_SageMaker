@@ -3,6 +3,18 @@
 from __future__ import annotations
 
 import sys
+from importlib.metadata import PackageNotFoundError, version
+
+
+def _package_version(package_name: str, module: object) -> str:
+    """Read a distribution version even when the module omits __version__."""
+    module_version = getattr(module, "__version__", None)
+    if module_version:
+        return str(module_version)
+    try:
+        return version(package_name)
+    except PackageNotFoundError:
+        return "unknown"
 
 
 def validate_environment() -> dict[str, str]:
@@ -21,8 +33,8 @@ def validate_environment() -> dict[str, str]:
 
     identity = session.client("sts").get_caller_identity()
     return {
-        "boto3_version": boto3.__version__,
-        "sagemaker_version": sagemaker.__version__,
+        "boto3_version": _package_version("boto3", boto3),
+        "sagemaker_version": _package_version("sagemaker", sagemaker),
         "region": session.region_name,
         "account": identity["Account"],
         "caller_arn": identity["Arn"],
