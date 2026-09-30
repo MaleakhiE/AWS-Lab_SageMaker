@@ -1,0 +1,11 @@
+project: sagemaker-ml-lab
+environment: lab
+region: ap-southeast-1
+s3_bucket: ""
+model_package_group: customer-churn-model
+endpoint_name: customer-churn-endpoint
+tags:
+  Project: SageMaker-Lab
+  Environment: LAB
+  Owner: ML-Team
+  AutoDelete: "True"

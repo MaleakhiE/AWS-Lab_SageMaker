@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# SageMaker lab data, artifacts, credentials, and local outputs
+data/*.csv
+data/*.parquet
+data/*.json
+!data/README.md
+models/
+*.joblib
+*.pkl
+*.tar.gz
+logs/
+*.pem
+*.key
+.aws/
