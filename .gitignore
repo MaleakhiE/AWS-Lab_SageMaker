@@ -219,6 +219,7 @@ __marimo__/
 
 # SageMaker lab data, artifacts, credentials, and local outputs
 data/*.csv
+!data/customer_churn.example.csv
 data/*.parquet
 data/*.json
 !data/README.md

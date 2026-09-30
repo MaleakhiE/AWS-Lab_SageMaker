@@ -1,0 +1,40 @@
+"""Train the local customer churn baseline model."""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import joblib
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+
+from src.processing.preprocess import FEATURE_COLUMNS, TARGET_COLUMN, load_dataset
+
+
+def train_model(frame: pd.DataFrame, n_estimators: int = 200) -> RandomForestClassifier:
+    model = RandomForestClassifier(
+        n_estimators=n_estimators,
+        random_state=42,
+        n_jobs=-1,
+        class_weight="balanced",
+    )
+    model.fit(frame[FEATURE_COLUMNS], frame[TARGET_COLUMN])
+    return model
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", type=Path)
+    parser.add_argument("output", type=Path)
+    parser.add_argument("--n-estimators", type=int, default=200)
+    args = parser.parse_args()
+
+    model = train_model(load_dataset(args.input), args.n_estimators)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, args.output)
+    print(f"Model saved to {args.output}")
+
+
+if __name__ == "__main__":
+    main()
