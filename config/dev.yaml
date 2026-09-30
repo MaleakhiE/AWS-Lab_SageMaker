@@ -1,6 +1,6 @@
 project: sagemaker-ml-lab
 environment: lab
-region: ap-southeast-1
+region: ap-southeast-2
 s3_bucket: ""
 model_package_group: customer-churn-model
 endpoint_name: customer-churn-endpoint
