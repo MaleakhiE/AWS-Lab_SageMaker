@@ -3,6 +3,7 @@ sagemaker
 pandas
 numpy
 scikit-learn
+joblib
 xgboost
 matplotlib
 pytest
