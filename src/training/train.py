@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 import joblib
@@ -25,8 +26,18 @@ def train_model(frame: pd.DataFrame, n_estimators: int = 200) -> RandomForestCla
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=Path)
-    parser.add_argument("output", type=Path)
+    parser.add_argument(
+        "input",
+        type=Path,
+        nargs="?",
+        default=Path(os.environ.get("SM_CHANNEL_TRAIN", "./data")) / "train.csv",
+    )
+    parser.add_argument(
+        "output",
+        type=Path,
+        nargs="?",
+        default=Path(os.environ.get("SM_MODEL_DIR", "./model")) / "model.joblib",
+    )
     parser.add_argument("--n-estimators", type=int, default=200)
     args = parser.parse_args()
 
