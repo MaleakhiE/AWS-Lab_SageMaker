@@ -4,13 +4,19 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
-from src.processing.preprocess import FEATURE_COLUMNS, TARGET_COLUMN, load_dataset
+try:
+    from src.processing.preprocess import FEATURE_COLUMNS, TARGET_COLUMN, load_dataset
+except ModuleNotFoundError:
+    # SageMaker executes this file directly from the source directory.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from processing.preprocess import FEATURE_COLUMNS, TARGET_COLUMN, load_dataset
 
 
 def train_model(frame: pd.DataFrame, n_estimators: int = 200) -> RandomForestClassifier:
