@@ -96,7 +96,7 @@ def build_pipeline(
                 ProcessingOutput(
                     output_name="train",
                     s3_output=ProcessingS3Output(
-                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/processed",
+                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PIPELINE_EXECUTION_ID}/processed",
                         local_path="/opt/ml/processing/output",
                         s3_upload_mode="EndOfJob",
                     ),
@@ -136,7 +136,7 @@ def build_pipeline(
                 ProcessingOutput(
                     output_name="evaluation",
                     s3_output=ProcessingS3Output(
-                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/evaluation",
+                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PIPELINE_EXECUTION_ID}/evaluation",
                         local_path="/opt/ml/processing/evaluation",
                         s3_upload_mode="EndOfJob",
                     ),
