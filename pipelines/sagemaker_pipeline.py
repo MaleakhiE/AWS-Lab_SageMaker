@@ -22,7 +22,15 @@ from sagemaker.core.workflow.conditions import ConditionGreaterThanOrEqualTo
 from sagemaker.core.workflow.functions import JsonGet
 from sagemaker.mlops.workflow.pipeline import Pipeline
 from sagemaker.core.workflow.properties import PropertyFile
-from sagemaker.mlops.workflow.steps import ConditionStep, ProcessingStep
+from sagemaker.mlops.workflow.steps import ProcessingStep
+
+try:
+    from sagemaker.mlops.workflow.condition_step import ConditionStep
+except ImportError:
+    try:
+        from sagemaker.core.workflow.condition_step import ConditionStep
+    except ImportError:
+        from sagemaker.workflow.condition_step import ConditionStep
 
 
 ROOT = Path(__file__).resolve().parents[1]
