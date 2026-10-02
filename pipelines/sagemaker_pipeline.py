@@ -14,7 +14,12 @@ import boto3
 from sagemaker.core import image_uris
 from sagemaker.core.helper.session_helper import get_execution_role
 from sagemaker.core.processing import ScriptProcessor
-from sagemaker.core.shapes import ProcessingInput, ProcessingOutput
+from sagemaker.core.shapes import (
+    ProcessingInput,
+    ProcessingS3Input,
+    ProcessingOutput,
+    ProcessingS3Output,
+)
 from sagemaker.core.workflow.parameters import ParameterFloat, ParameterString
 from sagemaker.core.workflow.pipeline_context import PipelineSession
 from sagemaker.core.workflow.execution_variables import ExecutionVariables
@@ -78,15 +83,23 @@ def build_pipeline(
             source_dir=str(ROOT),
             inputs=[
                 ProcessingInput(
-                    source=input_data,
-                    destination="/opt/ml/processing/input",
+                    input_name="input",
+                    s3_input=ProcessingS3Input(
+                        s3_uri=input_data,
+                        local_path="/opt/ml/processing/input",
+                        s3_data_type="S3Prefix",
+                        s3_input_mode="File",
+                    ),
                 )
             ],
             outputs=[
                 ProcessingOutput(
                     output_name="train",
-                    source="/opt/ml/processing/output",
-                    destination=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/processed",
+                    s3_output=ProcessingS3Output(
+                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/processed",
+                        local_path="/opt/ml/processing/output",
+                        s3_upload_mode="EndOfJob",
+                    ),
                 )
             ],
             arguments=[
@@ -108,17 +121,25 @@ def build_pipeline(
             source_dir=str(ROOT),
             inputs=[
                 ProcessingInput(
-                    source=process_step.properties.ProcessingOutputConfig.Outputs[
-                        "train"
-                    ].S3Output.S3Uri,
-                    destination="/opt/ml/processing/input",
+                    input_name="input",
+                    s3_input=ProcessingS3Input(
+                        s3_uri=process_step.properties.ProcessingOutputConfig.Outputs[
+                            "train"
+                        ].S3Output.S3Uri,
+                        local_path="/opt/ml/processing/input",
+                        s3_data_type="S3Prefix",
+                        s3_input_mode="File",
+                    ),
                 )
             ],
             outputs=[
                 ProcessingOutput(
                     output_name="evaluation",
-                    source="/opt/ml/processing/evaluation",
-                    destination=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/evaluation",
+                    s3_output=ProcessingS3Output(
+                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PipelineExecutionId}/evaluation",
+                        local_path="/opt/ml/processing/evaluation",
+                        s3_upload_mode="EndOfJob",
+                    ),
                 )
             ],
             arguments=[
