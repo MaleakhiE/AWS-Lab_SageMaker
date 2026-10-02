@@ -2,8 +2,8 @@ project: sagemaker-ml-lab
 environment: lab
 region: eu-north-1
 s3_bucket: ""
-model_package_group: customer-churn-model
-endpoint_name: customer-churn-endpoint
+model_package_group: customer-churn-model-v2
+endpoint_name: customer-churn-endpoint-v2
 tags:
   Project: SageMaker-Lab
   Environment: LAB
