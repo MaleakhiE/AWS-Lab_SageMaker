@@ -22,7 +22,6 @@ from sagemaker.core.shapes import (
 )
 from sagemaker.core.workflow.parameters import ParameterFloat, ParameterString
 from sagemaker.core.workflow.pipeline_context import PipelineSession
-from sagemaker.core.workflow.execution_variables import ExecutionVariables
 from sagemaker.core.workflow.conditions import ConditionGreaterThanOrEqualTo
 from sagemaker.core.workflow.functions import JsonGet
 from sagemaker.mlops.workflow.pipeline import Pipeline
@@ -96,7 +95,7 @@ def build_pipeline(
                 ProcessingOutput(
                     output_name="train",
                     s3_output=ProcessingS3Output(
-                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PIPELINE_EXECUTION_ID}/processed",
+                        s3_uri=f"s3://{bucket}/phase6/processed",
                         local_path="/opt/ml/processing/output",
                         s3_upload_mode="EndOfJob",
                     ),
@@ -136,7 +135,7 @@ def build_pipeline(
                 ProcessingOutput(
                     output_name="evaluation",
                     s3_output=ProcessingS3Output(
-                        s3_uri=f"s3://{bucket}/phase6/{ExecutionVariables.PIPELINE_EXECUTION_ID}/evaluation",
+                        s3_uri=f"s3://{bucket}/phase6/evaluation",
                         local_path="/opt/ml/processing/evaluation",
                         s3_upload_mode="EndOfJob",
                     ),
