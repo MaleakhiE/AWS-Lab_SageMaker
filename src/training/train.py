@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -50,6 +51,13 @@ def main() -> None:
     model = train_model(load_dataset(args.input), args.n_estimators)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, args.output)
+
+    # Include the serving module in model.tar.gz for the sklearn container.
+    inference_source = Path(__file__).resolve().parents[1] / "inference" / "inference.py"
+    code_dir = args.output.parent / "code"
+    code_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(inference_source, code_dir / "inference.py")
+
     print(f"Model saved to {args.output}")
 
 
