@@ -18,10 +18,10 @@ from sagemaker.core.shapes import ProcessingInput, ProcessingOutput
 from sagemaker.core.workflow.parameters import ParameterFloat, ParameterString
 from sagemaker.core.workflow.pipeline_context import PipelineSession
 from sagemaker.core.workflow.execution_variables import ExecutionVariables
-from sagemaker.mlops.workflow.conditions import ConditionGreaterThanOrEqualTo
-from sagemaker.mlops.workflow.functions import JsonGet
+from sagemaker.core.workflow.conditions import ConditionGreaterThanOrEqualTo
+from sagemaker.core.workflow.functions import JsonGet
 from sagemaker.mlops.workflow.pipeline import Pipeline
-from sagemaker.mlops.workflow.properties import PropertyFile
+from sagemaker.core.workflow.properties import PropertyFile
 from sagemaker.mlops.workflow.steps import ConditionStep, ProcessingStep
 
 
