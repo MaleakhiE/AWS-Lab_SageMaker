@@ -195,9 +195,6 @@ def main() -> None:
     parser.add_argument("--upsert", action="store_true")
     parser.add_argument("--start", action="store_true")
     args = parser.parse_args()
-    if args.start and not args.upsert:
-        parser.error("--start requires --upsert")
-
     role = args.role or get_execution_role()
     pipeline = build_pipeline(
         role=role,
