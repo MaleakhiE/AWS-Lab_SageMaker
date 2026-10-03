@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 from pathlib import Path
+from tempfile import mkdtemp
 
 import boto3
 from sagemaker.core import image_uris
@@ -52,6 +54,8 @@ def build_pipeline(
 ) -> Pipeline:
     """Return a compileable pipeline definition without creating AWS resources."""
     session = PipelineSession(boto_session=boto3.Session(region_name=region))
+    source_dir = Path(mkdtemp(prefix="sagemaker-phase6-source-"))
+    shutil.copytree(ROOT / "src", source_dir / "src")
     sklearn_image = image_uris.retrieve(
         framework="sklearn",
         region=region,
@@ -79,7 +83,7 @@ def build_pipeline(
         name="Preprocess",
         step_args=processor.run(
             code="src/processing/preprocess.py",
-            source_dir=str(ROOT),
+            source_dir=str(source_dir),
             inputs=[
                 ProcessingInput(
                     input_name="input",
@@ -117,7 +121,7 @@ def build_pipeline(
         name="Evaluate",
         step_args=processor.run(
             code="src/evaluation/pipeline_evaluate.py",
-            source_dir=str(ROOT),
+            source_dir=str(source_dir),
             inputs=[
                 ProcessingInput(
                     input_name="input",
@@ -212,9 +216,11 @@ def main() -> None:
     print(f"Pipeline: {args.pipeline_name}")
     print(f"Definition generated: {len(definition)} bytes")
     if args.upsert:
+        print("Upserting pipeline...", flush=True)
         pipeline.upsert(role_arn=role)
         print("Pipeline upserted.")
     if args.start:
+        print("Starting pipeline execution...", flush=True)
         execution = pipeline.start()
         print(f"Execution ARN: {execution.arn}")
 
