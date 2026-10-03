@@ -8,9 +8,7 @@ from __future__ import annotations
 
 import argparse
 import os
-import shutil
 from pathlib import Path
-from tempfile import mkdtemp
 
 import boto3
 from sagemaker.core import image_uris
@@ -54,8 +52,6 @@ def build_pipeline(
 ) -> Pipeline:
     """Return a compileable pipeline definition without creating AWS resources."""
     session = PipelineSession(boto_session=boto3.Session(region_name=region))
-    source_dir = Path(mkdtemp(prefix="sagemaker-phase6-source-"))
-    shutil.copytree(ROOT / "src", source_dir / "src")
     sklearn_image = image_uris.retrieve(
         framework="sklearn",
         region=region,
@@ -82,8 +78,7 @@ def build_pipeline(
     process_step = ProcessingStep(
         name="Preprocess",
         step_args=processor.run(
-            code="src/processing/preprocess.py",
-            source_dir=str(source_dir),
+            code=str(PROCESSING_SCRIPT),
             inputs=[
                 ProcessingInput(
                     input_name="input",
@@ -120,8 +115,7 @@ def build_pipeline(
     evaluation_step = ProcessingStep(
         name="Evaluate",
         step_args=processor.run(
-            code="src/evaluation/pipeline_evaluate.py",
-            source_dir=str(source_dir),
+            code=str(EVALUATION_SCRIPT),
             inputs=[
                 ProcessingInput(
                     input_name="input",
