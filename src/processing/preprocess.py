@@ -49,7 +49,13 @@ def main() -> None:
     parser.add_argument("output_dir", type=Path)
     args = parser.parse_args()
 
-    train, test = split_dataset(load_dataset(args.input))
+    input_path = args.input
+    if input_path.is_dir():
+        candidates = sorted(input_path.glob("*.csv"))
+        if len(candidates) != 1:
+            raise ValueError("Input directory must contain exactly one CSV file")
+        input_path = candidates[0]
+    train, test = split_dataset(load_dataset(input_path))
     args.output_dir.mkdir(parents=True, exist_ok=True)
     train.to_csv(args.output_dir / "train.csv", index=False)
     test.to_csv(args.output_dir / "test.csv", index=False)

@@ -101,7 +101,7 @@ def build_pipeline(
                 )
             ],
             arguments=[
-                "/opt/ml/processing/input/input.csv",
+                "/opt/ml/processing/input",
                 "/opt/ml/processing/output",
             ],
         ),
