@@ -156,30 +156,6 @@ def build_pipeline(
         property_files=[evaluation_property],
     )
 
-    quality_step = ConditionStep(
-        name="QualityGate",
-        conditions=[
-            ConditionGreaterThanOrEqualTo(
-                left=JsonGet(
-                    step_name=evaluation_step.name,
-                    property_file=evaluation_property,
-                    json_path="roc_auc",
-                ),
-                right=min_roc_auc,
-            ),
-            ConditionGreaterThanOrEqualTo(
-                left=JsonGet(
-                    step_name=evaluation_step.name,
-                    property_file=evaluation_property,
-                    json_path="f1",
-                ),
-                right=min_f1,
-            ),
-        ],
-        if_steps=[],
-        else_steps=[],
-    )
-
     model_data_uri = Join(
         on="/",
         values=[
@@ -204,13 +180,35 @@ def build_pipeline(
             inference_instances=["ml.m5.large"],
             approval_status="PendingManualApproval",
         ),
-        depends_on=[quality_step.name],
+    )
+    quality_step = ConditionStep(
+        name="QualityGate",
+        conditions=[
+            ConditionGreaterThanOrEqualTo(
+                left=JsonGet(
+                    step_name=evaluation_step.name,
+                    property_file=evaluation_property,
+                    json_path="roc_auc",
+                ),
+                right=min_roc_auc,
+            ),
+            ConditionGreaterThanOrEqualTo(
+                left=JsonGet(
+                    step_name=evaluation_step.name,
+                    property_file=evaluation_property,
+                    json_path="f1",
+                ),
+                right=min_f1,
+            ),
+        ],
+        if_steps=[register_step],
+        else_steps=[],
     )
 
     return Pipeline(
         name=pipeline_name,
         parameters=[input_data, min_roc_auc, min_f1],
-        steps=[process_step, evaluation_step, quality_step, register_step],
+        steps=[process_step, evaluation_step, quality_step],
         sagemaker_session=session,
     )
 
