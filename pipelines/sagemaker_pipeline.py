@@ -24,7 +24,10 @@ from sagemaker.core.workflow.parameters import ParameterFloat, ParameterString
 from sagemaker.core.workflow.pipeline_context import PipelineSession
 from sagemaker.core.workflow.conditions import ConditionGreaterThanOrEqualTo
 from sagemaker.core.workflow.functions import JsonGet
+from sagemaker.core.workflow.functions import Join
 from sagemaker.mlops.workflow.pipeline import Pipeline
+from sagemaker.serve.model_builder import ModelBuilder
+from sagemaker.mlops.workflow.model_step import ModelStep
 from sagemaker.core.workflow.properties import PropertyFile
 from sagemaker.mlops.workflow.steps import ProcessingStep
 
@@ -177,10 +180,37 @@ def build_pipeline(
         else_steps=[],
     )
 
+    model_data_uri = Join(
+        on="/",
+        values=[
+            evaluation_step.properties.ProcessingOutputConfig.Outputs[
+                "evaluation"
+            ].S3Output.S3Uri,
+            "model.tar.gz",
+        ],
+    )
+    model_builder = ModelBuilder(
+        s3_model_data_url=model_data_uri,
+        image_uri=sklearn_image,
+        role_arn=role,
+        sagemaker_session=session,
+    )
+    register_step = ModelStep(
+        name="RegisterModel",
+        step_args=model_builder.register(
+            model_package_group_name="customer-churn-model-v5",
+            content_types=["application/json"],
+            response_types=["application/json"],
+            inference_instances=["ml.m5.large"],
+            approval_status="PendingManualApproval",
+        ),
+        depends_on=[quality_step.name],
+    )
+
     return Pipeline(
         name=pipeline_name,
         parameters=[input_data, min_roc_auc, min_f1],
-        steps=[process_step, evaluation_step, quality_step],
+        steps=[process_step, evaluation_step, quality_step, register_step],
         sagemaker_session=session,
     )
 

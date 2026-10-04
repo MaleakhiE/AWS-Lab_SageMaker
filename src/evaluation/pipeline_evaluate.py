@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import tarfile
 from pathlib import Path
 
 import joblib
@@ -56,6 +57,14 @@ def main() -> None:
     )
     model.fit(train[FEATURE_COLUMNS], train[TARGET_COLUMN])
     joblib.dump(model, model_path)
+    inference_path = args.model_dir / "inference.py"
+    inference_path.write_text(
+        """import json\nimport joblib\n\ndef model_fn(model_dir):\n    return joblib.load(model_dir + '/model.joblib')\n\ndef input_fn(request_body, request_content_type):\n    if request_content_type != 'application/json': raise ValueError('Expected application/json')\n    value = json.loads(request_body)\n    return [[value[k] for k in ['age', 'monthly_spend', 'tenure', 'support_ticket']]]\n\ndef predict_fn(input_data, model):\n    probability = float(model.predict_proba(input_data)[0, 1])\n    return {'prediction': 'CHURN' if probability >= 0.5 else 'STAY', 'probability': probability}\n\ndef output_fn(prediction, accept):\n    return json.dumps(prediction), 'application/json'\n""",
+        encoding="utf-8",
+    )
+    with tarfile.open(args.output_dir / "model.tar.gz", "w:gz") as archive:
+        archive.add(model_path, arcname="model.joblib")
+        archive.add(inference_path, arcname="code/inference.py")
     metrics = evaluate(model_path, args.test)
     (args.output_dir / "metrics.json").write_text(
         json.dumps(metrics, indent=2) + "\n", encoding="utf-8"
